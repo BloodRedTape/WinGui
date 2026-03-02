@@ -120,7 +120,7 @@ namespace WinGui {
 			IM_COL32(245, 245, 245, 255),
 			IM_COL32(235, 235, 235, 255),
 			IM_COL32(0, 0, 0, 55),
-			IM_COL32(0, 0, 0, 20),
+			IM_COL32(230, 230, 230, 255),
 			IM_COL32(0, 0, 0, 255)
 		);
 		
@@ -243,4 +243,50 @@ namespace WinGui {
 		return Button(text, button, ctx->Typography.TextFont, flags);
 	}
 
+	void Icon(const char* icon) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		ImGui::PushFont(ctx->Typography.IconFont);
+
+		ImGui::Text(icon);
+
+		ImGui::PopFont(); 
+	}
+
+	std::tuple<bool, bool, bool> WindowControlButtons(const char *minimize_icon, const char *maximize_icon, const char *close_icon) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		ImGui::BeginGroup();
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0.f, 0.f});
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
+		
+		bool minimize = WinGui::SubtleIconButton(minimize_icon);
+
+		ImGui::SameLine();
+
+		bool maximize = WinGui::SubtleIconButton(maximize_icon);
+
+		ImGui::SameLine();
+
+		const auto &subtleRest = ctx->Style.ButtonStyles[WinGuiButton_Subtle][WinGuiButtonState_Rest];
+		auto &destructiveRest = ctx->Style.ButtonStyles[WinGuiButton_Destructive][WinGuiButtonState_Rest];
+		
+		auto restBackup = destructiveRest;
+		destructiveRest = subtleRest;
+
+		bool close = WinGui::DestructiveIconButton(close_icon);
+		
+		destructiveRest = restBackup;
+
+		ImGui::SameLine();
+
+		ImGui::PopStyleVar(2);
+
+		ImGui::EndGroup();
+
+		return {minimize, maximize, close};
+	}
 }

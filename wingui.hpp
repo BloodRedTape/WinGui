@@ -1,6 +1,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <tuple>
 
 struct WinGuiFontAtlas {
     ImFont *IconFont = nullptr;
@@ -108,6 +109,10 @@ namespace WinGui {
         return TextButton(text, WinGuiButton_Destructive, flags);
     }
 
+    void Icon(const char *icon);
+
+    std::tuple<bool, bool, bool> WindowControlButtons(const char *minimize_icon, const char *maximize_icon, const char *close_icon);
+
 }//namespace ImGui::
 
 
@@ -118,6 +123,10 @@ namespace WinIcon {
     static const char *More = "\xEE\x9C\x92";
     static const char *Forward = "\xEE\x9C\xAA";
     static const char *Back = "\xEE\x9C\xAB";
+
+    static const char *Picture = "\xEE\xA2\xB9";
+    static const char *Save = "\xEE\x9D\x8E";
+    static const char *Info = "\xEE\xA5\x86";
 
     static const char *ChromeClose = "\xEE\xA2\xBB";
     static const char *ChromeMinimize = "\xEE\xA4\xA1";
