@@ -66,6 +66,8 @@ void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 ho
 	void StyleColorsDark(WinGuiStyle* style) {
 		IM_ASSERT(style);
 
+		style->Window = IM_COL32_BLACK;
+
 		SetButtonColors(
 			style,
 			WinGuiButton_Accent,
@@ -114,6 +116,8 @@ void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 ho
 	void StyleColorsLight(WinGuiStyle* style) {
 		IM_ASSERT(style);
 
+		style->Window = IM_COL32_WHITE;
+
 		SetButtonColors(
 			style,
 			WinGuiButton_Accent,
@@ -157,6 +161,43 @@ void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 ho
 			IM_COL32(0, 0, 0, 40),
 			IM_COL32(255, 255, 255, 255)
 		);
+	}
+
+	void Begin(const char* name, bool* p_open, ImGuiWindowFlags flags) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ctx->Style.Window);
+		ImGui::Begin(name, p_open, flags);
+	}
+
+	void End() {
+		ImGui::End();
+		ImGui::PopStyleColor();
+	}
+
+	void BeginFullWindow(const char* name, ImVec2 size, ImVec2 pos, ImGuiWindowFlags flags) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		ImGui::SetNextWindowSize(size);
+		ImGui::SetNextWindowPos(pos);
+
+		flags |= ImGuiWindowFlags_NoTitleBar;
+		flags |= ImGuiWindowFlags_NoResize;
+		flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+		flags |= ImGuiWindowFlags_NoMove;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+		ImGui::PushStyleColor(ImGuiCol_Border, ctx->Style.Window);
+		ImGui::PushStyleColor(ImGuiCol_BorderShadow, ctx->Style.Window);
+		WinGui::Begin(name, nullptr, flags);
+		ImGui::PopStyleColor(2);
+		ImGui::PopStyleVar();
+	}
+
+	void EndFullWindow() {
+		WinGui::End();
 	}
 
 	bool Button(const char* text, WinGuiButton_ button, ImFont *font, ImGuiButtonFlags flags) {

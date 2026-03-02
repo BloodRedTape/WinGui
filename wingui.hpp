@@ -35,6 +35,7 @@ enum WinGuiButtonState_ {
 
 struct WinGuiStyle {
     WinGuiButtonStyle ButtonStyles[WinGuiButton_COUNT][WinGuiButtonState_COUNT];
+    ImU32 Window = WIN_DEBUG_NULL_COLOR;
 };
 
 struct WinGuiContext {
@@ -51,6 +52,12 @@ namespace WinGui {
 
     void StyleColorsDark(WinGuiStyle *style);
     void StyleColorsLight(WinGuiStyle *style);
+
+    void Begin(const char* name, bool* p_open = nullptr, ImGuiWindowFlags flags = 0);
+    void End();
+
+    void BeginFullWindow(const char *name, ImVec2 size, ImVec2 pos, ImGuiWindowFlags flags = 0);
+    void EndFullWindow();
 
     bool IconButton(const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
 
