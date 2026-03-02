@@ -23,35 +23,7 @@ namespace WinGui {
         GWinGui = ctx;
     }
 
-#if 0
-void PushButtonColors(ButtonStyle style, Theme theme) {
-    switch(style){
-    case Destructive:
-        ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(204, 14, 14, 255));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(232, 17, 35, 255));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(241, 91, 91, 255));
-        break;
-    case Primary:
-        if(theme == Theme::Dark){
-            ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(76, 194, 255, 255));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(73, 179, 234, 255));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(70, 165, 214, 255));
-        } else {
-            ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 103, 192, 255));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(26, 118, 198, 255));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(51, 133, 204, 255));
-        }
-        break;
-    case Secondary:
-        ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(255, 255, 255, 0));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 255, 40));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(255, 255, 255, 60));
-        break;
-    }
-}
-#endif
-
-void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 hover, ImU32 pressed, ImU32 disabled, ImU32 outline, ImU32 text) {
+	void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 hover, ImU32 pressed, ImU32 disabled, ImU32 outline, ImU32 text) {
 		style->ButtonStyles[btn][WinGuiButtonState_Rest].Color = rest;
 		style->ButtonStyles[btn][WinGuiButtonState_Hover].Color = hover;
 		style->ButtonStyles[btn][WinGuiButtonState_Pressed].Color = pressed;
@@ -66,7 +38,13 @@ void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 ho
 	void StyleColorsDark(WinGuiStyle* style) {
 		IM_ASSERT(style);
 
-		style->Window = IM_COL32_BLACK;
+		style->LayerStyles[WinGuiLayer_Base].Color        = IM_COL32(32, 32, 32, 255); 
+		style->LayerStyles[WinGuiLayer_Base].OutlineColor = IM_COL32(0, 0, 0, 0);
+		style->LayerStyles[WinGuiLayer_Base].ShadowColor  = IM_COL32(0, 0, 0, 0);
+
+		style->LayerStyles[WinGuiLayer_Content].Color        = IM_COL32(45, 45, 45, 255);
+		style->LayerStyles[WinGuiLayer_Content].OutlineColor = IM_COL32(64, 64, 64, 255);
+		style->LayerStyles[WinGuiLayer_Content].ShadowColor  = IM_COL32(0, 0, 0, 130);
 
 		SetButtonColors(
 			style,
@@ -116,7 +94,13 @@ void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 ho
 	void StyleColorsLight(WinGuiStyle* style) {
 		IM_ASSERT(style);
 
-		style->Window = IM_COL32_WHITE;
+		style->LayerStyles[WinGuiLayer_Base].Color        = IM_COL32(243, 243, 243, 255); 	
+		style->LayerStyles[WinGuiLayer_Base].OutlineColor = IM_COL32(0, 0, 0, 0);
+		style->LayerStyles[WinGuiLayer_Base].ShadowColor  = IM_COL32(0, 0, 0, 0);
+
+		style->LayerStyles[WinGuiLayer_Content].Color        = IM_COL32(255, 255, 255, 255);
+		style->LayerStyles[WinGuiLayer_Content].OutlineColor = IM_COL32(229, 229, 229, 255);
+		style->LayerStyles[WinGuiLayer_Content].ShadowColor  = IM_COL32(0, 0, 0, 15);
 
 		SetButtonColors(
 			style,
@@ -163,17 +147,40 @@ void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 ho
 		);
 	}
 
-	void Begin(const char* name, bool* p_open, ImGuiWindowFlags flags) {
+	bool Begin(const char* name, bool* p_open, WinGuiLayer_ layer, ImGuiWindowFlags flags) {
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
 
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ctx->Style.Window);
-		ImGui::Begin(name, p_open, flags);
+		auto layer_style = ctx->Style.LayerStyles[layer];
+
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, layer_style.Color);
+		ImGui::PushStyleColor(ImGuiCol_Border, layer_style.OutlineColor);
+		ImGui::PushStyleColor(ImGuiCol_BorderShadow, layer_style.ShadowColor);
+		bool ret = ImGui::Begin(name, p_open, flags);
+		ImGui::PopStyleColor(3);
+		return ret;
 	}
 
 	void End() {
 		ImGui::End();
-		ImGui::PopStyleColor();
+	}
+
+	bool BeginChild(const char* name, WinGuiLayer_ layer, const ImVec2& size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		auto layer_style = ctx->Style.LayerStyles[layer];
+
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, layer_style.Color);
+		ImGui::PushStyleColor(ImGuiCol_Border, layer_style.OutlineColor);
+		ImGui::PushStyleColor(ImGuiCol_BorderShadow, layer_style.ShadowColor);
+		auto ret = ImGui::BeginChild(name, size, child_flags, window_flags);
+		ImGui::PopStyleColor(3);
+		return ret;
+	}
+
+	void EndChild() {
+		ImGui::EndChild();
 	}
 
 	void BeginFullWindow(const char* name, ImVec2 size, ImVec2 pos, ImGuiWindowFlags flags) {
@@ -189,10 +196,7 @@ void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 ho
 		flags |= ImGuiWindowFlags_NoMove;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-		ImGui::PushStyleColor(ImGuiCol_Border, ctx->Style.Window);
-		ImGui::PushStyleColor(ImGuiCol_BorderShadow, ctx->Style.Window);
-		WinGui::Begin(name, nullptr, flags);
-		ImGui::PopStyleColor(2);
+		WinGui::Begin(name, nullptr, WinGuiLayer_Base, flags);
 		ImGui::PopStyleVar();
 	}
 

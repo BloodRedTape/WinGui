@@ -33,9 +33,21 @@ enum WinGuiButtonState_ {
     WinGuiButtonState_COUNT,
 };
 
+struct WinGuiLayerStyle {
+   ImU32 Color = WIN_DEBUG_NULL_COLOR;
+   ImU32 OutlineColor = WIN_DEBUG_NULL_COLOR;
+   ImU32 ShadowColor = WIN_DEBUG_NULL_COLOR;
+};
+
+enum WinGuiLayer_ {
+    WinGuiLayer_Base,
+    WinGuiLayer_Content,
+    WinGuiLayer_COUNT,
+};
+
 struct WinGuiStyle {
     WinGuiButtonStyle ButtonStyles[WinGuiButton_COUNT][WinGuiButtonState_COUNT];
-    ImU32 Window = WIN_DEBUG_NULL_COLOR;
+    WinGuiLayerStyle LayerStyles[WinGuiLayer_COUNT];
 };
 
 struct WinGuiContext {
@@ -53,8 +65,11 @@ namespace WinGui {
     void StyleColorsDark(WinGuiStyle *style);
     void StyleColorsLight(WinGuiStyle *style);
 
-    void Begin(const char* name, bool* p_open = nullptr, ImGuiWindowFlags flags = 0);
+    bool Begin(const char* name, bool* p_open = nullptr, WinGuiLayer_ layer = WinGuiLayer_Content, ImGuiWindowFlags flags = 0);
     void End();
+
+    bool BeginChild(const char* name, WinGuiLayer_ layer = WinGuiLayer_Content , const ImVec2& size = ImVec2(0, 0), ImGuiChildFlags child_flags = 0, ImGuiWindowFlags window_flags = 0);
+    void EndChild();
 
     void BeginFullWindow(const char *name, ImVec2 size, ImVec2 pos, ImGuiWindowFlags flags = 0);
     void EndFullWindow();
