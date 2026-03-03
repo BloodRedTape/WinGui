@@ -123,6 +123,11 @@ namespace WinIcon {
     static const char *More = "\xEE\x9C\x92";
     static const char *Forward = "\xEE\x9C\xAA";
     static const char *Back = "\xEE\x9C\xAB";
+    static const char *BrowsePhotos = "\xEE\x9F\x85";
+    static const char *Sync = "\xEE\xA2\x95";
+    static const char *Remove = "\xEE\x9C\xB8";
+    static const char *Stop = "\xEE\x9C\x9A";
+    static const char *Cancel = "\xEE\x9C\x91";
 
     static const char *Picture = "\xEE\xA2\xB9";
     static const char *Save = "\xEE\x9D\x8E";
