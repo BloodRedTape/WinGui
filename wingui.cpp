@@ -92,6 +92,43 @@ namespace WinGui {
 		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Disabled].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].OutlineColor;
 	}
 
+	void PropagateRadioButtonColors(WinGuiStyle* style) {
+		IM_ASSERT(style);
+		
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Rest].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Rest].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Rest].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].OutlineColor;
+
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Hover].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Hover].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Hover].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].OutlineColor;
+
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Pressed].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Pressed].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Pressed].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].OutlineColor;
+
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Disabled].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Disabled].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Disabled].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].OutlineColor;
+
+
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Rest].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Rest].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Rest].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].OutlineColor;
+
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Hover].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Hover].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Hover].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].OutlineColor;
+
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Pressed].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Pressed].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Pressed].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].OutlineColor;
+
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Disabled].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].Color;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Disabled].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].ContentColor;
+		style->RadioButtonStyles[WinGuiRadioButton_Unactive][WinGuiWidgetState_Disabled].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].OutlineColor;
+	}
+
 	void StyleColorsDark(WinGuiStyle* style) {
 		IM_ASSERT(style);
 
@@ -148,6 +185,7 @@ namespace WinGui {
 		);
 
 		PropagateCheckboxColors(style);
+		PropagateRadioButtonColors(style);
 	}
 
 	void StyleColorsLight(WinGuiStyle* style) {
@@ -206,6 +244,7 @@ namespace WinGui {
 		);
 
 		PropagateCheckboxColors(style);
+		PropagateRadioButtonColors(style);
 	}
 
 	bool Begin(const char* name, bool* p_open, WinGuiLayer_ layer, ImGuiWindowFlags flags) {
@@ -536,5 +575,26 @@ namespace WinGui {
 
 		ImGui::PopStyleColor(5);
 
+	}
+
+	void RadioButton(const char* name, bool active) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		auto& style = active ? ctx->Style.RadioButtonStyles[WinGuiRadioButton_Active] : ctx->Style.RadioButtonStyles[WinGuiRadioButton_Unactive];
+
+		ImGui::PushStyleColor(ImGuiCol_FrameBg,        style[WinGuiWidgetState_Rest].Color);
+		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, style[WinGuiWidgetState_Hover].Color);
+		ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  style[WinGuiWidgetState_Pressed].Color);
+		ImGui::PushStyleColor(ImGuiCol_Border,         style[WinGuiWidgetState_Rest].OutlineColor);
+		ImGui::PushStyleColor(ImGuiCol_CheckMark,      ctx->Style.RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Rest].ContentColor);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+
+		ImGui::RadioButton(name, active);
+
+		ImGui::PopStyleVar();
+
+		ImGui::PopStyleColor(5);
 	}
 }

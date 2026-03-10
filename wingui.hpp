@@ -54,9 +54,16 @@ enum WinGuiCheckbox_ {
     WinGuiCheckbox_COUNT
 };
 
+enum WinGuiRadioButton_ {
+    WinGuiRadioButton_Active,
+    WinGuiRadioButton_Unactive,
+    WinGuiRadioButton_COUNT
+};
+
 struct WinGuiStyle {
     WinGuiButtonStyle ButtonStyles[WinGuiButton_COUNT][WinGuiWidgetState_COUNT];
     WinGuiButtonStyle CheckboxStyles[WinGuiCheckbox_COUNT][WinGuiWidgetState_COUNT];
+    WinGuiButtonStyle RadioButtonStyles[WinGuiRadioButton_COUNT][WinGuiWidgetState_COUNT];
     WinGuiLayerStyle LayerStyles[WinGuiLayer_COUNT];
 };
 
@@ -158,6 +165,8 @@ namespace WinGui {
     void SpacingX(int spacing);
 
     void Checkbox(const char *name, bool *v);
+
+    void RadioButton(const char *name, bool active);
 
 }//namespace ImGui::
 
