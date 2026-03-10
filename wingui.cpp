@@ -25,15 +25,71 @@ namespace WinGui {
     }
 
 	void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 hover, ImU32 pressed, ImU32 disabled, ImU32 outline, ImU32 text) {
-		style->ButtonStyles[btn][WinGuiButtonState_Rest].Color = rest;
-		style->ButtonStyles[btn][WinGuiButtonState_Hover].Color = hover;
-		style->ButtonStyles[btn][WinGuiButtonState_Pressed].Color = pressed;
-		style->ButtonStyles[btn][WinGuiButtonState_Disabled].Color = disabled;
+		style->ButtonStyles[btn][WinGuiWidgetState_Rest].Color = rest;
+		style->ButtonStyles[btn][WinGuiWidgetState_Hover].Color = hover;
+		style->ButtonStyles[btn][WinGuiWidgetState_Pressed].Color = pressed;
+		style->ButtonStyles[btn][WinGuiWidgetState_Disabled].Color = disabled;
 		
-		for (int i = 0; i < WinGuiButtonState_COUNT; ++i) {
+		for (int i = 0; i < WinGuiWidgetState_COUNT; ++i) {
 			style->ButtonStyles[btn][i].OutlineColor = outline;
 			style->ButtonStyles[btn][i].ContentColor = text;
 		}
+	}
+
+	void PropagateCheckboxColors(WinGuiStyle* style) {
+		IM_ASSERT(style);
+		
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Rest].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Rest].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Rest].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Hover].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Hover].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Hover].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Pressed].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Pressed].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Pressed].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Disabled].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Disabled].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Disabled].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].OutlineColor;
+
+
+
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Rest].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Rest].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Rest].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Hover].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Hover].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Hover].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Hover].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Pressed].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Pressed].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Pressed].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Pressed].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Disabled].Color = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Disabled].ContentColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Undetermined][WinGuiWidgetState_Disabled].OutlineColor = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Disabled].OutlineColor;
+
+
+
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Rest].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Rest].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Rest].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Hover].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Hover].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Hover].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Pressed].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Pressed].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Pressed].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].OutlineColor;
+
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Disabled].Color = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].Color;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Disabled].ContentColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].ContentColor;
+		style->CheckboxStyles[WinGuiCheckbox_Unchecked][WinGuiWidgetState_Disabled].OutlineColor = style->ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].OutlineColor;
 	}
 
 	void StyleColorsDark(WinGuiStyle* style) {
@@ -90,6 +146,8 @@ namespace WinGui {
 			IM_COL32(255, 255, 255, 50),
 			IM_COL32(255, 255, 255, 255)
 		);
+
+		PropagateCheckboxColors(style);
 	}
 
 	void StyleColorsLight(WinGuiStyle* style) {
@@ -146,6 +204,8 @@ namespace WinGui {
 			IM_COL32(0, 0, 0, 40),
 			IM_COL32(255, 255, 255, 255)
 		);
+
+		PropagateCheckboxColors(style);
 	}
 
 	bool Begin(const char* name, bool* p_open, WinGuiLayer_ layer, ImGuiWindowFlags flags) {
@@ -270,11 +330,11 @@ namespace WinGui {
 
 		auto& button_states = ctx->Style.ButtonStyles[button];
 
-		ImGui::PushStyleColor(ImGuiCol_Button,        button_states[WinGuiButtonState_Rest].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_states[WinGuiButtonState_Hover].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  button_states[WinGuiButtonState_Pressed].Color);
-		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiButtonState_Rest].ContentColor);
-		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiButtonState_Rest].OutlineColor);
+		ImGui::PushStyleColor(ImGuiCol_Button,        button_states[WinGuiWidgetState_Rest].Color);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_states[WinGuiWidgetState_Hover].Color);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  button_states[WinGuiWidgetState_Pressed].Color);
+		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiWidgetState_Rest].ContentColor);
+		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiWidgetState_Rest].OutlineColor);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {12.f, 10.f});
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f); // Включаем отрисовку аутлайна
@@ -320,11 +380,11 @@ namespace WinGui {
 
 		auto& button_states = ctx->Style.ButtonStyles[button];
 
-		ImGui::PushStyleColor(ImGuiCol_Button,        button_states[WinGuiButtonState_Rest].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_states[WinGuiButtonState_Hover].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  button_states[WinGuiButtonState_Pressed].Color);
-		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiButtonState_Rest].ContentColor);
-		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiButtonState_Rest].OutlineColor);
+		ImGui::PushStyleColor(ImGuiCol_Button,        button_states[WinGuiWidgetState_Rest].Color);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_states[WinGuiWidgetState_Hover].Color);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  button_states[WinGuiWidgetState_Pressed].Color);
+		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiWidgetState_Rest].ContentColor);
+		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiWidgetState_Rest].OutlineColor);
 
 
 
@@ -395,8 +455,8 @@ namespace WinGui {
 
 		ImGui::SameLine();
 
-		const auto &subtleRest = ctx->Style.ButtonStyles[WinGuiButton_Subtle][WinGuiButtonState_Rest];
-		auto &destructiveRest = ctx->Style.ButtonStyles[WinGuiButton_Destructive][WinGuiButtonState_Rest];
+		const auto &subtleRest = ctx->Style.ButtonStyles[WinGuiButton_Subtle][WinGuiWidgetState_Rest];
+		auto &destructiveRest = ctx->Style.ButtonStyles[WinGuiButton_Destructive][WinGuiWidgetState_Rest];
 		
 		auto restBackup = destructiveRest;
 		destructiveRest = subtleRest;
@@ -451,5 +511,30 @@ namespace WinGui {
 	void SpacingX(int spacing)
 	{
         ImGui::SetCursorPos({ImGui::GetCursorPos().x + spacing, ImGui::GetCursorPosY()});
+	}
+
+	void Checkbox(const char* name, bool* v)
+	{
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		IM_ASSERT(v && "v is nullptr");
+
+		auto& style = *v ? ctx->Style.CheckboxStyles[WinGuiCheckbox_Checked] : ctx->Style.CheckboxStyles[WinGuiCheckbox_Unchecked];
+
+		ImGui::PushStyleColor(ImGuiCol_FrameBg,        style[WinGuiWidgetState_Rest].Color);
+		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, style[WinGuiWidgetState_Hover].Color);
+		ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  style[WinGuiWidgetState_Pressed].Color);
+		ImGui::PushStyleColor(ImGuiCol_Border,         style[WinGuiWidgetState_Rest].OutlineColor);
+		ImGui::PushStyleColor(ImGuiCol_CheckMark,      ctx->Style.CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Rest].ContentColor);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+
+		ImGui::Checkbox(name, v);
+
+		ImGui::PopStyleVar();
+
+		ImGui::PopStyleColor(5);
+
 	}
 }

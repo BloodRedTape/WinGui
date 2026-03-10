@@ -26,13 +26,13 @@ enum WinGuiButton_ {
     WinGuiButton_COUNT
 };
 
-enum WinGuiButtonState_ {
-    WinGuiButtonState_Rest,
-    WinGuiButtonState_Hover,
-    WinGuiButtonState_Pressed,
-    WinGuiButtonState_Disabled,
-    //WinGuiButtonState_Focus,
-    WinGuiButtonState_COUNT,
+enum WinGuiWidgetState {
+    WinGuiWidgetState_Rest,
+    WinGuiWidgetState_Hover,
+    WinGuiWidgetState_Pressed,
+    WinGuiWidgetState_Disabled,
+    //WinGuiWidgetState_Focus,
+    WinGuiWidgetState_COUNT,
 };
 
 struct WinGuiLayerStyle {
@@ -47,8 +47,16 @@ enum WinGuiLayer_ {
     WinGuiLayer_COUNT
 };
 
+enum WinGuiCheckbox_ {
+    WinGuiCheckbox_Checked,
+    WinGuiCheckbox_Unchecked,
+    WinGuiCheckbox_Undetermined,
+    WinGuiCheckbox_COUNT
+};
+
 struct WinGuiStyle {
-    WinGuiButtonStyle ButtonStyles[WinGuiButton_COUNT][WinGuiButtonState_COUNT];
+    WinGuiButtonStyle ButtonStyles[WinGuiButton_COUNT][WinGuiWidgetState_COUNT];
+    WinGuiButtonStyle CheckboxStyles[WinGuiCheckbox_COUNT][WinGuiWidgetState_COUNT];
     WinGuiLayerStyle LayerStyles[WinGuiLayer_COUNT];
 };
 
@@ -148,6 +156,8 @@ namespace WinGui {
     void EndPopup();
 
     void SpacingX(int spacing);
+
+    void Checkbox(const char *name, bool *v);
 
 }//namespace ImGui::
 
