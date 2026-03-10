@@ -552,7 +552,7 @@ namespace WinGui {
         ImGui::SetCursorPos({ImGui::GetCursorPos().x + spacing, ImGui::GetCursorPosY()});
 	}
 
-	void Checkbox(const char* name, bool* v)
+	bool Checkbox(const char* name, bool* v)
 	{
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
@@ -569,15 +569,16 @@ namespace WinGui {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
-		ImGui::Checkbox(name, v);
+		bool ret = ImGui::Checkbox(name, v);
 
 		ImGui::PopStyleVar();
 
 		ImGui::PopStyleColor(5);
-
+		
+		return ret;
 	}
 
-	void RadioButton(const char* name, bool active) {
+	bool RadioButton(const char* name, bool active) {
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
 
@@ -591,10 +592,12 @@ namespace WinGui {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
-		ImGui::RadioButton(name, active);
+		bool ret = ImGui::RadioButton(name, active);
 
 		ImGui::PopStyleVar();
 
 		ImGui::PopStyleColor(5);
+
+		return ret;
 	}
 }

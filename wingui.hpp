@@ -164,9 +164,9 @@ namespace WinGui {
 
     void SpacingX(int spacing);
 
-    void Checkbox(const char *name, bool *v);
+    bool Checkbox(const char *name, bool *v);
 
-    void RadioButton(const char *name, bool active);
+    bool RadioButton(const char *name, bool active);
 
 }//namespace ImGui::
 
