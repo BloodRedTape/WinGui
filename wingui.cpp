@@ -1,4 +1,5 @@
 #include "wingui.hpp"
+#include "imgui_internal.h"
 
 namespace WinGui {
     static WinGuiContext *GWinGui = nullptr;
@@ -204,6 +205,65 @@ namespace WinGui {
 		WinGui::End();
 	}
 
+	void Icon(const char* icon) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		ImGui::PushFont(ctx->Typography.IconFont);
+
+		ImGui::Text(icon);
+
+		ImGui::PopFont(); 
+	}
+
+	void IconText(const char* icon, const char* text, int spacing)
+	{
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		ImGui::PushFont(ctx->Typography.IconFont);
+
+		ImGui::Text(icon);
+
+		ImGui::PopFont(); 
+
+		ImGui::SameLine();
+
+		WinGui::SpacingX(spacing ? spacing : ImGui::GetTextLineHeight() / 4.f);
+
+		ImGui::PushFont(ctx->Typography.TextFont);
+
+		ImGui::Text(text);
+
+		ImGui::PopFont(); 
+	}
+
+	ImVec2 CalcIconTextSize(const char* icon, const char* text, int spacing) {
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		ImVec2 result = {};
+
+		ImGui::PushFont(ctx->Typography.IconFont);
+
+		result = ImGui::CalcTextSize(icon);
+
+		ImGui::PopFont(); 
+
+		result.x += (spacing ? spacing : ImGui::GetTextLineHeight() / 4.f);
+
+		ImGui::PushFont(ctx->Typography.TextFont);
+
+		auto text_size = ImGui::CalcTextSize(text);
+
+		result.x += text_size.x;
+		result.y = std::max(text_size.y, result.y);
+
+		ImGui::PopFont(); 
+
+		return result;
+	}
+
 	bool Button(const char* text, WinGuiButton_ button, ImFont *font, ImGuiButtonFlags flags) {
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
@@ -243,15 +303,79 @@ namespace WinGui {
 		return Button(text, button, ctx->Typography.TextFont, flags);
 	}
 
-	void Icon(const char* icon) {
+	ImVec2 CalcTextSize(const char* text, ImFont* font) {
+		ImGui::PushFont(font);
+		auto result = ImGui::CalcTextSize(text);
+		ImGui::PopFont();
+		return result;
+	}
+
+	bool IconTextButton(const char *icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags){
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
 
+		auto& button_states = ctx->Style.ButtonStyles[button];
+
+		ImGui::PushStyleColor(ImGuiCol_Button,        button_states[WinGuiButtonState_Rest].Color);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_states[WinGuiButtonState_Hover].Color);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  button_states[WinGuiButtonState_Pressed].Color);
+		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiButtonState_Rest].ContentColor);
+		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiButtonState_Rest].OutlineColor);
+
+
+
+		ImGuiContext& g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const ImGuiID id = window->GetID(text);
+
+		auto icon_text_spacing = 10.f;
+
+		const ImVec2 icon_size = CalcTextSize(icon, ctx->Typography.IconFont);
+		const ImVec2 text_size = CalcTextSize(text, ctx->Typography.TextFont);
+		const ImVec2 label_size = {icon_size.x + icon_text_spacing + text_size.x, std::max(icon_size.y, text_size.y)};
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {12.f, 10.f});
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f); // Включаем отрисовку аутлайна
+
+		ImVec2 pos = window->DC.CursorPos;
+		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+			pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+		ImVec2 size = ImGui::CalcItemSize({0.f, 0.f}, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+		const ImRect bb(pos, pos + size);
+		ImGui::ItemSize(size, style.FramePadding.y);
+		if (!ImGui::ItemAdd(bb, id)){
+			ImGui::PopStyleVar(2);
+			ImGui::PopStyleColor(5);
+
+			return false;
+		}
+
+		bool hovered, held;
+		bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
+
+		const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		ImGui::RenderNavCursor(bb, id);
+		ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+
+		if (g.LogEnabled)
+			ImGui::LogSetNextTextDecoration("[", "]");
+		
 		ImGui::PushFont(ctx->Typography.IconFont);
+		ImGui::RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, icon, NULL, &label_size, style.ButtonTextAlign, &bb);
+		ImGui::PopFont();
+		ImGui::PushFont(ctx->Typography.TextFont);
+		ImGui::RenderTextClipped(bb.Min + style.FramePadding + ImVec2(icon_size.x + icon_text_spacing, 0), bb.Max - style.FramePadding, text, NULL, &label_size, style.ButtonTextAlign, &bb);
+		ImGui::PopFont();
 
-		ImGui::Text(icon);
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(5);
 
-		ImGui::PopFont(); 
+		return pressed;
 	}
 
 	std::tuple<bool, bool, bool> WindowControlButtons(const char *minimize_icon, const char *maximize_icon, const char *close_icon) {
@@ -288,5 +412,44 @@ namespace WinGui {
 		ImGui::EndGroup();
 
 		return {minimize, maximize, close};
+	}
+
+	void OpenPopup(const char* name){
+		ImGui::OpenPopup(name);
+	}
+
+	bool BeginPopup(const char* name, WinGuiPopup_ type){
+		auto* ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is nullptr");
+
+		if (!ImGui::IsPopupOpen(name)) {
+			return false;
+		}
+		
+		auto rect_min = ImGui::GetItemRectMin();
+		auto rect_max = ImGui::GetItemRectMax();
+
+		if(type == WinGuiPopup_Over)
+			ImGui::SetNextWindowPos(rect_min);
+
+		if(type == WinGuiPopup_Below)
+			ImGui::SetNextWindowPos({rect_min.x, rect_max.y});
+
+		ImGui::PushStyleColor(ImGuiCol_PopupBg, ctx->Style.LayerStyles[WinGuiLayer_Content].Color);
+		//ImGui::PushStyleColor(ImGuiCol_Border, ctx->Style.LayerStyles[WinGuiLayer_Content].OutlineColor);
+		//ImGui::PushStyleColor(ImGuiCol_BorderShadow, ctx->Style.LayerStyles[WinGuiLayer_Content].ShadowColor);
+
+		return ImGui::BeginPopup(name);
+	}
+
+	void EndPopup() {
+		ImGui::EndPopup();
+
+		ImGui::PopStyleColor(/*3*/);
+	}
+
+	void SpacingX(int spacing)
+	{
+        ImGui::SetCursorPos({ImGui::GetCursorPos().x + spacing, ImGui::GetCursorPosY()});
 	}
 }

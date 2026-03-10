@@ -1,5 +1,6 @@
 #pragma once
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <tuple>
 
@@ -43,7 +44,7 @@ struct WinGuiLayerStyle {
 enum WinGuiLayer_ {
     WinGuiLayer_Base,
     WinGuiLayer_Content,
-    WinGuiLayer_COUNT,
+    WinGuiLayer_COUNT
 };
 
 struct WinGuiStyle {
@@ -54,6 +55,12 @@ struct WinGuiStyle {
 struct WinGuiContext {
     WinGuiFontAtlas Typography;
     WinGuiStyle Style;
+};
+
+enum WinGuiPopup_ {
+    WinGuiPopup_Below,
+    WinGuiPopup_Over,
+    WinGuiPopup_Mouse
 };
 
 namespace WinGui {
@@ -74,6 +81,12 @@ namespace WinGui {
 
     void BeginFullWindow(const char *name, ImVec2 size, ImVec2 pos, ImGuiWindowFlags flags = 0);
     void EndFullWindow();
+
+    void Icon(const char *icon);
+
+    void IconText(const char *icon, const char *text, int spacing = 0);
+
+    ImVec2 CalcIconTextSize(const char *icon, const char *text, int spacing);
 
     bool IconButton(const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
 
@@ -109,9 +122,32 @@ namespace WinGui {
         return TextButton(text, WinGuiButton_Destructive, flags);
     }
 
-    void Icon(const char *icon);
+    bool IconTextButton(const char *icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
+
+    inline bool AccentIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+        return IconTextButton(icon, text, WinGuiButton_Accent, flags);
+    }
+
+    inline bool StandardIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+        return IconTextButton(icon, text, WinGuiButton_Standard, flags);
+    }
+
+    inline bool SubtleIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+        return IconTextButton(icon, text, WinGuiButton_Subtle, flags);
+    }
+    inline bool DestructiveIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+        return IconTextButton(icon, text, WinGuiButton_Destructive, flags);
+    }
 
     std::tuple<bool, bool, bool> WindowControlButtons(const char *minimize_icon, const char *maximize_icon, const char *close_icon);
+
+    void OpenPopup(const char *name);
+
+    bool BeginPopup(const char *name, WinGuiPopup_ type = WinGuiPopup_Mouse);
+
+    void EndPopup();
+
+    void SpacingX(int spacing);
 
 }//namespace ImGui::
 
