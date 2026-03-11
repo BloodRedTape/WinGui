@@ -22,7 +22,7 @@ struct WinGuiButtonStyle {
 
 struct WinGuiButtonLayout {
     float IconTextSpacing = 10.f;
-    ImVec2 ContentPadding = {12.f, 10.f};
+    ImVec2 ContentPadding = {12.f, 8.f};
 };
 
 enum WinGuiButton_ {
@@ -68,12 +68,26 @@ enum WinGuiRadioButton_ {
     WinGuiRadioButton_COUNT
 };
 
+enum WinGuiSelectable_ {
+    WinGuiSelectable_Selected,
+    WinGuiSelectable_Unselected,
+    WinGuiSelectable_COUNT
+};
+
+struct WinGuiSelectableStyle {
+   ImU32 Accent = WIN_DEBUG_NULL_COLOR;
+};
+
+struct WinGuiSelectableLayout {
+    ImVec2 ContentPadding = {12.f, 8.f};
+};
+
 struct WinGuiStyle {
     WinGuiButtonStyle ButtonStyles[WinGuiButton_COUNT][WinGuiWidgetState_COUNT];
     WinGuiButtonStyle CheckboxStyles[WinGuiCheckbox_COUNT][WinGuiWidgetState_COUNT];
     WinGuiButtonStyle RadioButtonStyles[WinGuiRadioButton_COUNT][WinGuiWidgetState_COUNT];
+    WinGuiSelectableStyle SelectableStyle;
     WinGuiLayerStyle LayerStyles[WinGuiLayer_COUNT];
-    ImU32 Accent = WIN_DEBUG_NULL_COLOR;
 };
 
 struct WinGuiPopupLayout {
@@ -83,6 +97,7 @@ struct WinGuiPopupLayout {
 struct WinGuiLayout {
     WinGuiButtonLayout ButtonLayout;
     WinGuiPopupLayout PopupLayout;
+    WinGuiSelectableLayout SelectableLayout;
 };
 
 struct WinGuiContext {

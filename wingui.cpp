@@ -239,7 +239,7 @@ namespace WinGui {
 		PropagateCheckboxColors(style);
 		PropagateRadioButtonColors(style);
 
-		style->Accent = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
+		style->SelectableStyle.Accent = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
 	}
 
 	void StyleColorsLight(WinGuiStyle* style) {
@@ -301,7 +301,7 @@ namespace WinGui {
 		PropagateCheckboxColors(style);
 		PropagateRadioButtonColors(style);
 
-		style->Accent = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
+		style->SelectableStyle.Accent = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
 	}
 
 	bool Begin(const char* name, bool* p_open, WinGuiLayer_ layer, ImGuiWindowFlags flags) {
@@ -694,6 +694,9 @@ namespace WinGui {
 	bool Selectable(const char* text, bool selected){
 		auto ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is null");
+
+		ScopedValue<ImVec2> padding(ctx->Layout.ButtonLayout.ContentPadding, ctx->Layout.SelectableLayout.ContentPadding);
+
 		if(selected){
 			ScopedValue<ImU32> rest_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].OutlineColor, 0.f);
 			ScopedValue<ImU32> hover_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].OutlineColor, 0.f);
@@ -717,7 +720,7 @@ namespace WinGui {
 
 			float padding = ImGui::GetItemRectSize().y * (1.f - height) / 2;
 
-			ImGui::GetWindowDrawList()->AddRectFilled({min.x, min.y + padding}, {min.x + ImGui::GetStyle().FrameRounding, max.y - padding}, ctx->Style.Accent, ImGui::GetStyle().FrameRounding / 2.f);
+			ImGui::GetWindowDrawList()->AddRectFilled({min.x, min.y + padding}, {min.x + ImGui::GetStyle().FrameRounding, max.y - padding}, ctx->Style.SelectableStyle.Accent, ImGui::GetStyle().FrameRounding / 2.f);
 		}
 
 		return false;
