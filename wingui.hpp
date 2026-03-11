@@ -22,7 +22,7 @@ struct WinGuiButtonStyle {
 
 struct WinGuiButtonLayout {
     float IconTextSpacing = 10.f;
-    ImVec2 ContentPadding = {12.f, 8.f};
+    ImVec2 ContentPadding = {12.f, 10.f};
 };
 
 enum WinGuiButton_ {
@@ -137,6 +137,10 @@ namespace WinGui {
 
     void StyleColorsDark(WinGuiStyle *style);
     void StyleColorsLight(WinGuiStyle *style);
+
+    WinGuiStyle &GetStyle();
+    WinGuiFontAtlas &GetTypography();
+    WinGuiLayout &GetLayout();
 
     bool Begin(const char* name, bool* p_open = nullptr, WinGuiLayer_ layer = WinGuiLayer_Content, ImGuiWindowFlags flags = 0);
     void End();

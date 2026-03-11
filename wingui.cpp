@@ -75,6 +75,29 @@ namespace WinGui {
         GWinGui = ctx;
     }
 
+	WinGuiStyle& GetStyle() {
+		auto ctx = GetCurrentContext();
+
+		IM_ASSERT(ctx && "Current context is null");
+
+		return ctx->Style;
+	}
+	WinGuiFontAtlas& GetTypography() {
+		auto ctx = GetCurrentContext();
+
+		IM_ASSERT(ctx && "Current context is null");
+
+		return ctx->Typography;
+	}
+
+	WinGuiLayout& GetLayout() {
+		auto ctx = GetCurrentContext();
+
+		IM_ASSERT(ctx && "Current context is null");
+
+		return ctx->Layout;
+	}
+
 	void SetButtonColors(WinGuiStyle* style, WinGuiButton_ btn, ImU32 rest, ImU32 hover, ImU32 pressed, ImU32 disabled, ImU32 outline, ImU32 text) {
 		style->ButtonStyles[btn][WinGuiWidgetState_Rest].Color = rest;
 		style->ButtonStyles[btn][WinGuiWidgetState_Hover].Color = hover;
@@ -305,10 +328,7 @@ namespace WinGui {
 	}
 
 	bool Begin(const char* name, bool* p_open, WinGuiLayer_ layer, ImGuiWindowFlags flags) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
-		auto layer_style = ctx->Style.LayerStyles[layer];
+		auto layer_style = WinGui::GetStyle().LayerStyles[layer];
 
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, layer_style.Color);
 		ImGui::PushStyleColor(ImGuiCol_Border, layer_style.OutlineColor);
@@ -323,10 +343,7 @@ namespace WinGui {
 	}
 
 	bool BeginChild(const char* name, WinGuiLayer_ layer, const ImVec2& size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
-		auto layer_style = ctx->Style.LayerStyles[layer];
+		auto layer_style = WinGui::GetStyle().LayerStyles[layer];
 
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, layer_style.Color);
 		ImGui::PushStyleColor(ImGuiCol_Border, layer_style.OutlineColor);
@@ -341,9 +358,6 @@ namespace WinGui {
 	}
 
 	void BeginFullWindow(const char* name, ImVec2 size, ImVec2 pos, ImGuiWindowFlags flags) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
 		ImGui::SetNextWindowSize(size);
 		ImGui::SetNextWindowPos(pos);
 
@@ -362,10 +376,7 @@ namespace WinGui {
 	}
 
 	void Icon(WinIcon icon) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
-		ImGui::PushFont(ctx->Typography.IconFont);
+		ImGui::PushFont(WinGui::GetTypography().IconFont);
 
 		ImGui::Text(icon);
 
@@ -374,10 +385,7 @@ namespace WinGui {
 
 	void IconText(WinIcon icon, const char* text, int spacing)
 	{
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
-		ImGui::PushFont(ctx->Typography.IconFont);
+		ImGui::PushFont(WinGui::GetTypography().IconFont);
 
 		ImGui::Text(icon);
 
@@ -387,7 +395,7 @@ namespace WinGui {
 
 		WinGui::SpacingX(spacing ? spacing : ImGui::GetTextLineHeight() / 4.f);
 
-		ImGui::PushFont(ctx->Typography.TextFont);
+		ImGui::PushFont(WinGui::GetTypography().TextFont);
 
 		ImGui::Text(text);
 
@@ -395,12 +403,9 @@ namespace WinGui {
 	}
 
 	ImVec2 CalcIconTextSize(WinIcon icon, const char* text, int spacing) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
 		ImVec2 result = {};
 
-		ImGui::PushFont(ctx->Typography.IconFont);
+		ImGui::PushFont(WinGui::GetTypography().IconFont);
 
 		result = ImGui::CalcTextSize(icon);
 
@@ -408,7 +413,7 @@ namespace WinGui {
 
 		result.x += (spacing ? spacing : ImGui::GetTextLineHeight() / 4.f);
 
-		ImGui::PushFont(ctx->Typography.TextFont);
+		ImGui::PushFont(WinGui::GetTypography().TextFont);
 
 		auto text_size = ImGui::CalcTextSize(text);
 
@@ -464,10 +469,7 @@ namespace WinGui {
 		if (window->SkipItems)
 			return false;
 
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
-		auto& button_states = ctx->Style.ButtonStyles[button];
+		auto& button_states = WinGui::GetStyle().ButtonStyles[button];
 
 		ImGuiContext& g = *GImGui;
 		const ImGuiStyle& style = g.Style;
@@ -510,19 +512,19 @@ namespace WinGui {
 			return result;
 		};
 
-		auto icon_text_spacing = ctx->Layout.ButtonLayout.IconTextSpacing;
+		auto icon_text_spacing = WinGui::GetLayout().ButtonLayout.IconTextSpacing;
 
 		LayoutEntry layout[] = {
-			leading ? LayoutEntry(leading, ctx->Typography.IconFont) : LayoutEntry(0),
+			leading ? LayoutEntry(leading, WinGui::GetTypography().IconFont) : LayoutEntry(0),
 			leading && text ? LayoutEntry(icon_text_spacing) : LayoutEntry(0),
-			text ? LayoutEntry(text, ctx->Typography.TextFont) : LayoutEntry(0),
+			text ? LayoutEntry(text, WinGui::GetTypography().TextFont) : LayoutEntry(0),
 			trailing ? LayoutEntry(icon_text_spacing) : LayoutEntry(0),
-			trailing ? LayoutEntry(trailing, ctx->Typography.IconFont) : LayoutEntry(0),
+			trailing ? LayoutEntry(trailing, WinGui::GetTypography().IconFont) : LayoutEntry(0),
 		};
 
 		const ImVec2 layout_size = LayoutSize(layout, IM_ARRAYSIZE(layout));
 
-		const ImVec2 padding = ctx->Layout.ButtonLayout.ContentPadding;
+		const ImVec2 padding = WinGui::GetLayout().ButtonLayout.ContentPadding;
 
 		ImVec2 pos = window->DC.CursorPos;
 		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && padding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
@@ -608,9 +610,6 @@ namespace WinGui {
 	}
 
 	bool BeginPopup(const char* name, WinGuiPopup_ type){
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
 		if (!ImGui::IsPopupOpen(name)) {
 			return false;
 		}
@@ -624,9 +623,9 @@ namespace WinGui {
 		if(type == WinGuiPopup_Below)
 			ImGui::SetNextWindowPos({rect_min.x, rect_max.y + 2}); //TODO(bloodredtape): move this to layout
 
-		ImGui::PushStyleColor(ImGuiCol_PopupBg, ctx->Style.LayerStyles[WinGuiLayer_Content].Color);
-		ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, ctx->Style.LayerStyles[WinGuiLayer_Content].OutlineSize);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ctx->Layout.PopupLayout.ContentPadding);
+		ImGui::PushStyleColor(ImGuiCol_PopupBg, WinGui::GetStyle().LayerStyles[WinGuiLayer_Content].Color);
+		ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, WinGui::GetStyle().LayerStyles[WinGuiLayer_Content].OutlineSize);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, WinGui::GetLayout().PopupLayout.ContentPadding);
 
 		return ImGui::BeginPopup(name);
 	}
@@ -644,18 +643,15 @@ namespace WinGui {
 
 	bool Checkbox(const char* name, bool* v)
 	{
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
 		IM_ASSERT(v && "v is nullptr");
 
-		auto& style = *v ? ctx->Style.CheckboxStyles[WinGuiCheckbox_Checked] : ctx->Style.CheckboxStyles[WinGuiCheckbox_Unchecked];
+		auto& style = *v ? WinGui::GetStyle().CheckboxStyles[WinGuiCheckbox_Checked] : WinGui::GetStyle().CheckboxStyles[WinGuiCheckbox_Unchecked];
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg,        style[WinGuiWidgetState_Rest].Color);
 		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, style[WinGuiWidgetState_Hover].Color);
 		ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  style[WinGuiWidgetState_Pressed].Color);
 		ImGui::PushStyleColor(ImGuiCol_Border,         style[WinGuiWidgetState_Rest].OutlineColor);
-		ImGui::PushStyleColor(ImGuiCol_CheckMark,      ctx->Style.CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Rest].ContentColor);
+		ImGui::PushStyleColor(ImGuiCol_CheckMark,      WinGui::GetStyle().CheckboxStyles[WinGuiCheckbox_Checked][WinGuiWidgetState_Rest].ContentColor);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
@@ -669,16 +665,13 @@ namespace WinGui {
 	}
 
 	bool RadioButton(const char* name, bool active) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
-		auto& style = active ? ctx->Style.RadioButtonStyles[WinGuiRadioButton_Active] : ctx->Style.RadioButtonStyles[WinGuiRadioButton_Unactive];
+		auto& style = active ? WinGui::GetStyle().RadioButtonStyles[WinGuiRadioButton_Active] : WinGui::GetStyle().RadioButtonStyles[WinGuiRadioButton_Unactive];
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg,        style[WinGuiWidgetState_Rest].Color);
 		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, style[WinGuiWidgetState_Hover].Color);
 		ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  style[WinGuiWidgetState_Pressed].Color);
 		ImGui::PushStyleColor(ImGuiCol_Border,         style[WinGuiWidgetState_Rest].OutlineColor);
-		ImGui::PushStyleColor(ImGuiCol_CheckMark,      ctx->Style.RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Rest].ContentColor);
+		ImGui::PushStyleColor(ImGuiCol_CheckMark,      WinGui::GetStyle().RadioButtonStyles[WinGuiRadioButton_Active][WinGuiWidgetState_Rest].ContentColor);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
@@ -692,16 +685,13 @@ namespace WinGui {
 	}
 
 	bool Selectable(const char* text, bool selected){
-		auto ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is null");
-
-		ScopedValue<ImVec2> padding(ctx->Layout.ButtonLayout.ContentPadding, ctx->Layout.SelectableLayout.ContentPadding);
+		ScopedValue<ImVec2> padding(WinGui::GetLayout().ButtonLayout.ContentPadding, WinGui::GetLayout().SelectableLayout.ContentPadding);
 
 		if(selected){
-			ScopedValue<ImU32> rest_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].OutlineColor, 0.f);
-			ScopedValue<ImU32> hover_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].OutlineColor, 0.f);
-			ScopedValue<ImU32> pressed_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].OutlineColor, 0.f);
-			ScopedValue<ImU32> disabled_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].OutlineColor, 0.f);
+			ScopedValue<ImU32> rest_outline(WinGui::GetStyle().ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].OutlineColor, 0.f);
+			ScopedValue<ImU32> hover_outline(WinGui::GetStyle().ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].OutlineColor, 0.f);
+			ScopedValue<ImU32> pressed_outline(WinGui::GetStyle().ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].OutlineColor, 0.f);
+			ScopedValue<ImU32> disabled_outline(WinGui::GetStyle().ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].OutlineColor, 0.f);
 
 			if(WinGui::StandardTextButton(text)){
 				return true;
@@ -720,7 +710,7 @@ namespace WinGui {
 
 			float padding = ImGui::GetItemRectSize().y * (1.f - height) / 2;
 
-			ImGui::GetWindowDrawList()->AddRectFilled({min.x, min.y + padding}, {min.x + ImGui::GetStyle().FrameRounding, max.y - padding}, ctx->Style.SelectableStyle.Accent, ImGui::GetStyle().FrameRounding / 2.f);
+			ImGui::GetWindowDrawList()->AddRectFilled({min.x, min.y + padding}, {min.x + ImGui::GetStyle().FrameRounding, max.y - padding}, WinGui::GetStyle().SelectableStyle.Accent, ImGui::GetStyle().FrameRounding / 2.f);
 		}
 
 		return false;
