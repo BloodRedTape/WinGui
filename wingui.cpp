@@ -730,4 +730,21 @@ namespace WinGui {
 		}
 		return false;
 	}
+
+	bool BeginCombo(const char* name, const char* preview, WinIcon icon, WinGuiButton_ style, WinGuiPopup_ popup_style) {
+		if (WinGui::IconTextButton({}, preview, icon, style)) {
+			WinGui::OpenPopup(name);
+		}
+
+		if(ImGui::IsPopupOpen(name)){
+			//ImGui::SetNextWindowSize({ImGui::GetItemRectSize().x, 0.f});
+			ImGui::SetNextWindowSizeConstraints(ImGui::GetItemRectSize(), {FLT_MAX, FLT_MAX});
+		}
+		return WinGui::BeginPopup(name, popup_style);
+	}
+
+	void EndCombo() {
+		WinGui::EndPopup();
+	}
+
 }

@@ -201,4 +201,8 @@ namespace WinGui {
 
     bool Selectable(const char *text, bool *selected);
 
+    bool BeginCombo(const char *name, const char *preview, WinIcon icon, WinGuiButton_ style = WinGuiButton_Standard, WinGuiPopup_ popup_style = WinGuiPopup_Below);
+
+    void EndCombo();
+
 }//namespace ImGui::
