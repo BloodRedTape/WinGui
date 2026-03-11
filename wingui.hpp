@@ -81,9 +81,17 @@ enum WinGuiPopup_ {
 struct WinIcon {
     char Utf8Data[5] = {0};
 
+    WinIcon() = default;
+
     WinIcon(std::uint32_t code);
 
+    const char *CStr()const;
+
     operator const char*() const;
+
+    bool IsValid()const;
+
+    operator bool()const;
 };
 
 namespace WinGui {
@@ -145,21 +153,21 @@ namespace WinGui {
         return TextButton(text, WinGuiButton_Destructive, flags);
     }
 
-    bool IconTextButton(WinIcon icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
+    bool IconTextButton(WinIcon leading, const char* text, WinIcon trailing, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
 
     inline bool AccentIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
-        return IconTextButton(icon, text, WinGuiButton_Accent, flags);
+        return IconTextButton(icon, text, {},  WinGuiButton_Accent, flags);
     }
 
     inline bool StandardIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
-        return IconTextButton(icon, text, WinGuiButton_Standard, flags);
+        return IconTextButton(icon, text, {}, WinGuiButton_Standard, flags);
     }
 
     inline bool SubtleIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
-        return IconTextButton(icon, text, WinGuiButton_Subtle, flags);
+        return IconTextButton(icon, text, {}, WinGuiButton_Subtle, flags);
     }
     inline bool DestructiveIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
-        return IconTextButton(icon, text, WinGuiButton_Destructive, flags);
+        return IconTextButton(icon, text, {}, WinGuiButton_Destructive, flags);
     }
 
     std::tuple<bool, bool, bool> WindowControlButtons(WinIcon minimize_icon, WinIcon maximize_icon, WinIcon close_icon);

@@ -19,8 +19,20 @@ WinIcon::WinIcon(std::uint32_t code) {
     }
 }
 
-WinIcon::operator const char*() const {
-    return Utf8Data;
+const char* WinIcon::CStr()const {
+	return Utf8Data;
+}
+
+WinIcon::operator const char* () const {
+	return CStr();
+}
+
+bool WinIcon::IsValid()const {
+	return Utf8Data[0] || Utf8Data[1] || Utf8Data[2] || Utf8Data[3];
+}
+
+WinIcon::operator bool()const {
+	return IsValid();
 }
 
 namespace WinGui {
@@ -385,53 +397,33 @@ namespace WinGui {
 		return result;
 	}
 
-	bool Button(const char* text, WinGuiButton_ button, ImFont *font, ImGuiButtonFlags flags) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-
-		auto& button_states = ctx->Style.ButtonStyles[button];
-
-		ImGui::PushStyleColor(ImGuiCol_Button,        button_states[WinGuiWidgetState_Rest].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_states[WinGuiWidgetState_Hover].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  button_states[WinGuiWidgetState_Pressed].Color);
-		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiWidgetState_Rest].ContentColor);
-		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiWidgetState_Rest].OutlineColor);
-
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {12.f, 10.f});
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f); // Включаем отрисовку аутлайна
-
-		ImGui::PushFont(font);
-
-		bool ret = ImGui::Button(text);
-
-		ImGui::PopFont(); 
-
-		ImGui::PopStyleVar(2);
-		ImGui::PopStyleColor(5);
-
-		return ret;
-	}
-
 	bool IconButton(WinIcon icon, WinGuiButton_ button, ImGuiButtonFlags flags) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-		return Button(icon, button, ctx->Typography.IconFont, flags);
+		return IconTextButton(icon, nullptr, {}, button, flags);
 	}
 
 	bool TextButton(const char* text, WinGuiButton_ button, ImGuiButtonFlags flags) {
-		auto* ctx = GetCurrentContext();
-		IM_ASSERT(ctx && "Context is nullptr");
-		return Button(text, button, ctx->Typography.TextFont, flags);
+		return IconTextButton({}, text, {}, button, flags);
 	}
 
-	ImVec2 CalcTextSize(const char* text, ImFont* font) {
+	static ImVec2 CalcTextSize(const char* text, ImFont* font) {
 		ImGui::PushFont(font);
 		auto result = ImGui::CalcTextSize(text);
 		ImGui::PopFont();
 		return result;
 	}
 
-	bool IconTextButton(WinIcon icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags){
+	static ImGuiID CombinedId(ImGuiWindow *window, WinIcon leading, const char* text, WinIcon trailing) {
+		ImGuiID seed = window->IDStack.back();
+		if (leading.IsValid())
+			seed = ImHashData(leading.Utf8Data, sizeof(leading.Utf8Data), seed);
+		if (text)
+			seed = ImHashStr(text, 0, seed);
+		if (trailing.IsValid())
+			seed = ImHashData(trailing.Utf8Data, sizeof(trailing.Utf8Data), seed);
+		return seed;
+	}
+
+	bool IconTextButton(WinIcon leading, const char* text, WinIcon trailing, WinGuiButton_ button, ImGuiButtonFlags flags){
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
 			return false;
@@ -447,17 +439,58 @@ namespace WinGui {
 		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiWidgetState_Rest].ContentColor);
 		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiWidgetState_Rest].OutlineColor);
 
-
-
 		ImGuiContext& g = *GImGui;
 		const ImGuiStyle& style = g.Style;
-		const ImGuiID id = window->GetID(text);
+
+		const ImGuiID id = CombinedId(window, leading, text, trailing);
+
+		struct LayoutEntry {
+			bool IsString = false;
+			const char *String = nullptr;
+			ImFont *Font = nullptr;
+			ImU32 Spacing = 0;
+
+			LayoutEntry(ImU32 spacing):
+				IsString(false),
+				Spacing(spacing)
+			{ }
+
+			LayoutEntry(const char *text, ImFont *font):
+				IsString(true),
+				String(text),
+				Font(font)
+			{ }
+
+			ImVec2 CalcSize()const {
+				return IsString ? CalcTextSize(String, Font) : ImVec2(Spacing, 0.f);
+			}
+		};
+
+		auto Append = [](ImVec2 l, ImVec2 r)->ImVec2{
+			return {l.x + r.x, std::max(l.y, r.y)};
+		};
+
+		auto LayoutSize = [Append](LayoutEntry layout[], std::size_t layout_size) {
+			ImVec2 result = {0, 0};
+
+			for(int i = 0; i<layout_size; i++){
+				result = Append(result, layout[i].CalcSize());
+			}
+
+			return result;
+		};
 
 		auto icon_text_spacing = 10.f;
 
-		const ImVec2 icon_size = CalcTextSize(icon, ctx->Typography.IconFont);
-		const ImVec2 text_size = CalcTextSize(text, ctx->Typography.TextFont);
-		const ImVec2 label_size = {icon_size.x + icon_text_spacing + text_size.x, std::max(icon_size.y, text_size.y)};
+		LayoutEntry layout[] = {
+			leading ? LayoutEntry(leading, ctx->Typography.IconFont) : LayoutEntry(0),
+			leading && text ? LayoutEntry(icon_text_spacing) : LayoutEntry(0),
+			text ? LayoutEntry(text, ctx->Typography.TextFont) : LayoutEntry(0),
+			trailing ? LayoutEntry(icon_text_spacing) : LayoutEntry(0),
+			trailing ? LayoutEntry(trailing, ctx->Typography.IconFont) : LayoutEntry(0),
+		};
+
+		const ImVec2 layout_size = LayoutSize(layout, IM_ARRAYSIZE(layout));
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {12.f, 10.f});
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f); // Включаем отрисовку аутлайна
@@ -465,7 +498,7 @@ namespace WinGui {
 		ImVec2 pos = window->DC.CursorPos;
 		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
 			pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-		ImVec2 size = ImGui::CalcItemSize({0.f, 0.f}, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+		ImVec2 size = ImGui::CalcItemSize({0.f, 0.f}, layout_size.x + style.FramePadding.x * 2.0f, layout_size.y + style.FramePadding.y * 2.0f);
 
 		const ImRect bb(pos, pos + size);
 		ImGui::ItemSize(size, style.FramePadding.y);
@@ -486,13 +519,18 @@ namespace WinGui {
 		if (g.LogEnabled)
 			ImGui::LogSetNextTextDecoration("[", "]");
 		
-		ImGui::PushFont(ctx->Typography.IconFont);
-		ImGui::RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, icon, NULL, &label_size, style.ButtonTextAlign, &bb);
-		ImGui::PopFont();
-		ImGui::PushFont(ctx->Typography.TextFont);
-		ImGui::RenderTextClipped(bb.Min + style.FramePadding + ImVec2(icon_size.x + icon_text_spacing, 0), bb.Max - style.FramePadding, text, NULL, &label_size, style.ButtonTextAlign, &bb);
-		ImGui::PopFont();
+		ImVec2 offset;
+		for (auto entry : layout) {
 
+			if(entry.IsString){
+				ImGui::PushFont(entry.Font);
+				ImGui::RenderTextClipped(bb.Min + style.FramePadding + offset, bb.Max - style.FramePadding, entry.String, NULL, &layout_size, style.ButtonTextAlign, &bb);
+				ImGui::PopFont();
+			}
+
+			offset.x += entry.CalcSize().x;
+		}
+		
 		ImGui::PopStyleVar(2);
 		ImGui::PopStyleColor(5);
 
@@ -551,7 +589,7 @@ namespace WinGui {
 		auto rect_max = ImGui::GetItemRectMax();
 
 		if(type == WinGuiPopup_Over)
-			ImGui::SetNextWindowPos(rect_min);
+			ImGui::SetNextWindowPos(rect_min); // TODO(I.Kostiuk): align with ImGui::GetStyle().FramePadding
 
 		if(type == WinGuiPopup_Below)
 			ImGui::SetNextWindowPos({rect_min.x, rect_max.y});
