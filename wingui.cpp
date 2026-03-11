@@ -626,13 +626,14 @@ namespace WinGui {
 
 		ImGui::PushStyleColor(ImGuiCol_PopupBg, ctx->Style.LayerStyles[WinGuiLayer_Content].Color);
 		ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, ctx->Style.LayerStyles[WinGuiLayer_Content].OutlineSize);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ctx->Layout.PopupLayout.ContentPadding);
 
 		return ImGui::BeginPopup(name);
 	}
 
 	void EndPopup() {
 		ImGui::EndPopup();
-		ImGui::PopStyleVar();
+		ImGui::PopStyleVar(2);
 		ImGui::PopStyleColor(1);
 	}
 

@@ -76,8 +76,13 @@ struct WinGuiStyle {
     ImU32 Accent = WIN_DEBUG_NULL_COLOR;
 };
 
+struct WinGuiPopupLayout {
+    ImVec2 ContentPadding = {6.f, 6.f};
+};
+
 struct WinGuiLayout {
     WinGuiButtonLayout ButtonLayout;
+    WinGuiPopupLayout PopupLayout;
 };
 
 struct WinGuiContext {
