@@ -14,6 +14,7 @@ struct WinGuiFontAtlas {
 struct WinGuiButtonStyle {
    ImU32 Color = WIN_DEBUG_NULL_COLOR;
    ImU32 OutlineColor = WIN_DEBUG_NULL_COLOR;
+   float OutlineSize = 1.f;
    //ImU32 ShadowColor = WIN_DEBUG_NULL_COLOR;
    ImU32 ContentColor = WIN_DEBUG_NULL_COLOR;
 };
@@ -65,6 +66,7 @@ struct WinGuiStyle {
     WinGuiButtonStyle CheckboxStyles[WinGuiCheckbox_COUNT][WinGuiWidgetState_COUNT];
     WinGuiButtonStyle RadioButtonStyles[WinGuiRadioButton_COUNT][WinGuiWidgetState_COUNT];
     WinGuiLayerStyle LayerStyles[WinGuiLayer_COUNT];
+    ImU32 Accent = WIN_DEBUG_NULL_COLOR;
 };
 
 struct WinGuiContext {
@@ -183,5 +185,9 @@ namespace WinGui {
     bool Checkbox(const char *name, bool *v);
 
     bool RadioButton(const char *name, bool active);
+
+    bool Selectable(const char *text, bool selected);
+
+    bool Selectable(const char *text, bool *selected);
 
 }//namespace ImGui::

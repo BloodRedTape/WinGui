@@ -35,6 +35,23 @@ WinIcon::operator bool()const {
 	return IsValid();
 }
 
+template<typename T>
+class ScopedValue{
+	T &m_Ref;
+	T m_Backup;
+public:
+	ScopedValue(T &ref, T scoped):
+		m_Ref(ref),
+		m_Backup(ref)
+	{
+		m_Ref = scoped;
+	}
+
+	~ScopedValue() {
+		m_Ref = m_Backup;
+	}
+};
+
 namespace WinGui {
     static WinGuiContext *GWinGui = nullptr;
 
@@ -220,6 +237,8 @@ namespace WinGui {
 
 		PropagateCheckboxColors(style);
 		PropagateRadioButtonColors(style);
+
+		style->Accent = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
 	}
 
 	void StyleColorsLight(WinGuiStyle* style) {
@@ -279,6 +298,8 @@ namespace WinGui {
 
 		PropagateCheckboxColors(style);
 		PropagateRadioButtonColors(style);
+
+		style->Accent = style->ButtonStyles[WinGuiButton_Accent][WinGuiWidgetState_Rest].Color;
 	}
 
 	bool Begin(const char* name, bool* p_open, WinGuiLayer_ layer, ImGuiWindowFlags flags) {
@@ -423,6 +444,19 @@ namespace WinGui {
 		return seed;
 	}
 
+	void RenderFrame(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, float rounding, float border_size, ImU32 border_col)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		window->DrawList->AddRectFilled(p_min, p_max, fill_col, rounding);
+
+		if (border_size > 0.0f)
+		{
+			//window->DrawList->AddRect(p_min + ImVec2(1, 1), p_max + ImVec2(1, 1), shadow_col, rounding, 0, border_size);
+			window->DrawList->AddRect(p_min, p_max, border_col, rounding, 0, border_size);
+		}
+	}
+
 	bool IconTextButton(WinIcon leading, const char* text, WinIcon trailing, WinGuiButton_ button, ImGuiButtonFlags flags){
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
@@ -432,12 +466,6 @@ namespace WinGui {
 		IM_ASSERT(ctx && "Context is nullptr");
 
 		auto& button_states = ctx->Style.ButtonStyles[button];
-
-		ImGui::PushStyleColor(ImGuiCol_Button,        button_states[WinGuiWidgetState_Rest].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_states[WinGuiWidgetState_Hover].Color);
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  button_states[WinGuiWidgetState_Pressed].Color);
-		ImGui::PushStyleColor(ImGuiCol_Text,          button_states[WinGuiWidgetState_Rest].ContentColor);
-		ImGui::PushStyleColor(ImGuiCol_Border,        button_states[WinGuiWidgetState_Rest].OutlineColor);
 
 		ImGuiContext& g = *GImGui;
 		const ImGuiStyle& style = g.Style;
@@ -493,7 +521,6 @@ namespace WinGui {
 		const ImVec2 layout_size = LayoutSize(layout, IM_ARRAYSIZE(layout));
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {12.f, 10.f});
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f); // Включаем отрисовку аутлайна
 
 		ImVec2 pos = window->DC.CursorPos;
 		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
@@ -503,22 +530,23 @@ namespace WinGui {
 		const ImRect bb(pos, pos + size);
 		ImGui::ItemSize(size, style.FramePadding.y);
 		if (!ImGui::ItemAdd(bb, id)){
-			ImGui::PopStyleVar(2);
-			ImGui::PopStyleColor(5);
-
+			ImGui::PopStyleVar(1);
 			return false;
 		}
 
 		bool hovered, held;
 		bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
 
-		const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		const WinGuiButtonStyle &button_style = button_states[(held && hovered) ? WinGuiWidgetState_Pressed : hovered ? WinGuiWidgetState_Hover : WinGuiWidgetState_Rest];
+
 		ImGui::RenderNavCursor(bb, id);
-		ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+		WinGui::RenderFrame(bb.Min, bb.Max, button_style.Color, style.FrameRounding, button_style.OutlineSize, button_style.OutlineColor);
 
 		if (g.LogEnabled)
 			ImGui::LogSetNextTextDecoration("[", "]");
 		
+		ImGui::PushStyleColor(ImGuiCol_Text, button_style.ContentColor);
+
 		ImVec2 offset;
 		for (auto entry : layout) {
 
@@ -531,8 +559,8 @@ namespace WinGui {
 			offset.x += entry.CalcSize().x;
 		}
 		
-		ImGui::PopStyleVar(2);
-		ImGui::PopStyleColor(5);
+		ImGui::PopStyleColor(1);
+		ImGui::PopStyleVar(1);
 
 		return pressed;
 	}
@@ -659,5 +687,47 @@ namespace WinGui {
 		ImGui::PopStyleColor(5);
 
 		return ret;
+	}
+
+	bool Selectable(const char* text, bool selected){
+		auto ctx = GetCurrentContext();
+		IM_ASSERT(ctx && "Context is null");
+		if(selected){
+			ScopedValue<ImU32> rest_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Rest].OutlineColor, 0.f);
+			ScopedValue<ImU32> hover_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Hover].OutlineColor, 0.f);
+			ScopedValue<ImU32> pressed_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Pressed].OutlineColor, 0.f);
+			ScopedValue<ImU32> disabled_outline(ctx->Style.ButtonStyles[WinGuiButton_Standard][WinGuiWidgetState_Disabled].OutlineColor, 0.f);
+
+			if(WinGui::StandardTextButton(text)){
+				return true;
+			}
+		}else {
+			if(WinGui::SubtleTextButton(text))
+				return true;
+		}
+		
+
+		if(selected){
+			auto min = ImGui::GetItemRectMin();
+			auto max = ImGui::GetItemRectMax();
+
+			float height = 0.6f;
+
+			float padding = ImGui::GetItemRectSize().y * (1.f - height) / 2;
+
+			ImGui::GetWindowDrawList()->AddRectFilled({min.x, min.y + padding}, {min.x + ImGui::GetStyle().FrameRounding, max.y - padding}, ctx->Style.Accent, ImGui::GetStyle().FrameRounding / 2.f);
+		}
+
+		return false;
+	}
+
+	bool Selectable(const char* text, bool* selected)
+	{
+		if (WinGui::Selectable(text, *selected))
+		{
+			*selected = !*selected;
+			return true;
+		}
+		return false;
 	}
 }
