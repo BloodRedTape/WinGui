@@ -78,6 +78,14 @@ enum WinGuiPopup_ {
     WinGuiPopup_Mouse
 };
 
+struct WinIcon {
+    char Utf8Data[5] = {0};
+
+    WinIcon(std::uint32_t code);
+
+    operator const char*() const;
+};
+
 namespace WinGui {
         
     WinGuiContext *CreateContext(ImFont *icon_font, ImFont *text_font);
@@ -97,27 +105,27 @@ namespace WinGui {
     void BeginFullWindow(const char *name, ImVec2 size, ImVec2 pos, ImGuiWindowFlags flags = 0);
     void EndFullWindow();
 
-    void Icon(const char *icon);
+    void Icon(WinIcon icon);
 
-    void IconText(const char *icon, const char *text, int spacing = 0);
+    void IconText(WinIcon icon, const char *text, int spacing = 0);
 
-    ImVec2 CalcIconTextSize(const char *icon, const char *text, int spacing);
+    ImVec2 CalcIconTextSize(WinIcon icon, const char *text, int spacing);
 
-    bool IconButton(const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
+    bool IconButton(WinIcon icon, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
 
-    inline bool AccentIconButton(const char* text, ImGuiButtonFlags flags = 0) {
-        return IconButton(text, WinGuiButton_Accent, flags);
+    inline bool AccentIconButton(WinIcon icon, ImGuiButtonFlags flags = 0) {
+        return IconButton(icon, WinGuiButton_Accent, flags);
     }
 
-    inline bool StandardIconButton(const char* text, ImGuiButtonFlags flags = 0) {
-        return IconButton(text, WinGuiButton_Standard, flags);
+    inline bool StandardIconButton(WinIcon icon, ImGuiButtonFlags flags = 0) {
+        return IconButton(icon, WinGuiButton_Standard, flags);
     }
 
-    inline bool SubtleIconButton(const char* text, ImGuiButtonFlags flags = 0) {
-        return IconButton(text, WinGuiButton_Subtle, flags);
+    inline bool SubtleIconButton(WinIcon icon, ImGuiButtonFlags flags = 0) {
+        return IconButton(icon, WinGuiButton_Subtle, flags);
     }
-    inline bool DestructiveIconButton(const char* text, ImGuiButtonFlags flags = 0) {
-        return IconButton(text, WinGuiButton_Destructive, flags);
+    inline bool DestructiveIconButton(WinIcon icon, ImGuiButtonFlags flags = 0) {
+        return IconButton(icon, WinGuiButton_Destructive, flags);
     }
 
     bool TextButton(const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
@@ -137,24 +145,24 @@ namespace WinGui {
         return TextButton(text, WinGuiButton_Destructive, flags);
     }
 
-    bool IconTextButton(const char *icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
+    bool IconTextButton(WinIcon icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags = 0);
 
-    inline bool AccentIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+    inline bool AccentIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
         return IconTextButton(icon, text, WinGuiButton_Accent, flags);
     }
 
-    inline bool StandardIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+    inline bool StandardIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
         return IconTextButton(icon, text, WinGuiButton_Standard, flags);
     }
 
-    inline bool SubtleIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+    inline bool SubtleIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
         return IconTextButton(icon, text, WinGuiButton_Subtle, flags);
     }
-    inline bool DestructiveIconTextButton(const char *icon, const char* text, ImGuiButtonFlags flags = 0) {
+    inline bool DestructiveIconTextButton(WinIcon icon, const char* text, ImGuiButtonFlags flags = 0) {
         return IconTextButton(icon, text, WinGuiButton_Destructive, flags);
     }
 
-    std::tuple<bool, bool, bool> WindowControlButtons(const char *minimize_icon, const char *maximize_icon, const char *close_icon);
+    std::tuple<bool, bool, bool> WindowControlButtons(WinIcon minimize_icon, WinIcon maximize_icon, WinIcon close_icon);
 
     void OpenPopup(const char *name);
 
@@ -169,27 +177,3 @@ namespace WinGui {
     bool RadioButton(const char *name, bool active);
 
 }//namespace ImGui::
-
-
-namespace WinIcon {
-    static const char *Wifi = "\xEE\x9C\x81";
-    static const char *Copy = "\xEE\xA3\x88";
-    static const char *Delete = "\xEE\x9D\x8D";
-    static const char *More = "\xEE\x9C\x92";
-    static const char *Forward = "\xEE\x9C\xAA";
-    static const char *Back = "\xEE\x9C\xAB";
-    static const char *BrowsePhotos = "\xEE\x9F\x85";
-    static const char *Sync = "\xEE\xA2\x95";
-    static const char *Remove = "\xEE\x9C\xB8";
-    static const char *Stop = "\xEE\x9C\x9A";
-    static const char *Cancel = "\xEE\x9C\x91";
-
-    static const char *Picture = "\xEE\xA2\xB9";
-    static const char *Save = "\xEE\x9D\x8E";
-    static const char *Info = "\xEE\xA5\x86";
-
-    static const char *ChromeClose = "\xEE\xA2\xBB";
-    static const char *ChromeMinimize = "\xEE\xA4\xA1";
-    static const char *ChromeMaximize = "\xEE\xA4\xA2";
-    static const char *ChromeRestore = "\xEE\xA4\xA3";
-}//namespace Icon::

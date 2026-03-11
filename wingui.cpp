@@ -1,6 +1,28 @@
 #include "wingui.hpp"
 #include "imgui_internal.h"
 
+WinIcon::WinIcon(std::uint32_t code) {
+    if (code <= 0x7F) {
+        Utf8Data[0] = static_cast<char>(code);
+    } else if (code <= 0x7FF) {
+        Utf8Data[0] = static_cast<char>(0xC0 | ((code >> 6) & 0x1F));
+        Utf8Data[1] = static_cast<char>(0x80 | (code & 0x3F));
+    } else if (code <= 0xFFFF) {
+        Utf8Data[0] = static_cast<char>(0xE0 | ((code >> 12) & 0x0F));
+        Utf8Data[1] = static_cast<char>(0x80 | ((code >> 6) & 0x3F));
+        Utf8Data[2] = static_cast<char>(0x80 | (code & 0x3F));
+    } else if (code <= 0x10FFFF) {
+        Utf8Data[0] = static_cast<char>(0xF0 | ((code >> 18) & 0x07));
+        Utf8Data[1] = static_cast<char>(0x80 | ((code >> 12) & 0x3F));
+        Utf8Data[2] = static_cast<char>(0x80 | ((code >> 6) & 0x3F));
+        Utf8Data[3] = static_cast<char>(0x80 | (code & 0x3F));
+    }
+}
+
+WinIcon::operator const char*() const {
+    return Utf8Data;
+}
+
 namespace WinGui {
     static WinGuiContext *GWinGui = nullptr;
 
@@ -304,7 +326,7 @@ namespace WinGui {
 		WinGui::End();
 	}
 
-	void Icon(const char* icon) {
+	void Icon(WinIcon icon) {
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
 
@@ -315,7 +337,7 @@ namespace WinGui {
 		ImGui::PopFont(); 
 	}
 
-	void IconText(const char* icon, const char* text, int spacing)
+	void IconText(WinIcon icon, const char* text, int spacing)
 	{
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
@@ -337,7 +359,7 @@ namespace WinGui {
 		ImGui::PopFont(); 
 	}
 
-	ImVec2 CalcIconTextSize(const char* icon, const char* text, int spacing) {
+	ImVec2 CalcIconTextSize(WinIcon icon, const char* text, int spacing) {
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
 
@@ -390,10 +412,10 @@ namespace WinGui {
 		return ret;
 	}
 
-	bool IconButton(const char* text, WinGuiButton_ button, ImGuiButtonFlags flags) {
+	bool IconButton(WinIcon icon, WinGuiButton_ button, ImGuiButtonFlags flags) {
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
-		return Button(text, button, ctx->Typography.IconFont, flags);
+		return Button(icon, button, ctx->Typography.IconFont, flags);
 	}
 
 	bool TextButton(const char* text, WinGuiButton_ button, ImGuiButtonFlags flags) {
@@ -409,7 +431,7 @@ namespace WinGui {
 		return result;
 	}
 
-	bool IconTextButton(const char *icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags){
+	bool IconTextButton(WinIcon icon, const char* text, WinGuiButton_ button, ImGuiButtonFlags flags){
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
 			return false;
@@ -477,7 +499,7 @@ namespace WinGui {
 		return pressed;
 	}
 
-	std::tuple<bool, bool, bool> WindowControlButtons(const char *minimize_icon, const char *maximize_icon, const char *close_icon) {
+	std::tuple<bool, bool, bool> WindowControlButtons(WinIcon minimize_icon, WinIcon maximize_icon, WinIcon close_icon) {
 		auto* ctx = GetCurrentContext();
 		IM_ASSERT(ctx && "Context is nullptr");
 
