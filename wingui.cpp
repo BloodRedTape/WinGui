@@ -508,7 +508,7 @@ namespace WinGui {
 			return result;
 		};
 
-		auto icon_text_spacing = 10.f;
+		auto icon_text_spacing = ctx->Layout.ButtonLayout.IconTextSpacing;
 
 		LayoutEntry layout[] = {
 			leading ? LayoutEntry(leading, ctx->Typography.IconFont) : LayoutEntry(0),
@@ -520,17 +520,16 @@ namespace WinGui {
 
 		const ImVec2 layout_size = LayoutSize(layout, IM_ARRAYSIZE(layout));
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {12.f, 10.f});
+		const ImVec2 padding = ctx->Layout.ButtonLayout.ContentPadding;
 
 		ImVec2 pos = window->DC.CursorPos;
-		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
-			pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-		ImVec2 size = ImGui::CalcItemSize({0.f, 0.f}, layout_size.x + style.FramePadding.x * 2.0f, layout_size.y + style.FramePadding.y * 2.0f);
+		if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && padding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+			pos.y += window->DC.CurrLineTextBaseOffset - padding.y;
+		ImVec2 size = ImGui::CalcItemSize({0.f, 0.f}, layout_size.x + padding.x * 2.0f, layout_size.y + padding.y * 2.0f);
 
 		const ImRect bb(pos, pos + size);
-		ImGui::ItemSize(size, style.FramePadding.y);
+		ImGui::ItemSize(size, padding.y);
 		if (!ImGui::ItemAdd(bb, id)){
-			ImGui::PopStyleVar(1);
 			return false;
 		}
 
@@ -540,27 +539,28 @@ namespace WinGui {
 		const WinGuiButtonStyle &button_style = button_states[(held && hovered) ? WinGuiWidgetState_Pressed : hovered ? WinGuiWidgetState_Hover : WinGuiWidgetState_Rest];
 
 		ImGui::RenderNavCursor(bb, id);
-		WinGui::RenderFrame(bb.Min, bb.Max, button_style.Color, style.FrameRounding, button_style.OutlineSize, button_style.OutlineColor);
+		WinGui::RenderFrame(bb.Min, bb.Max, button_style.Color, button_style.Rounding, button_style.OutlineSize, button_style.OutlineColor);
 
 		if (g.LogEnabled)
 			ImGui::LogSetNextTextDecoration("[", "]");
 		
-		ImGui::PushStyleColor(ImGuiCol_Text, button_style.ContentColor);
 
 		ImVec2 offset;
 		for (auto entry : layout) {
 
 			if(entry.IsString){
+				ImGui::PushStyleColor(ImGuiCol_Text, button_style.ContentColor);
 				ImGui::PushFont(entry.Font);
-				ImGui::RenderTextClipped(bb.Min + style.FramePadding + offset, bb.Max - style.FramePadding, entry.String, NULL, &layout_size, style.ButtonTextAlign, &bb);
+
+				ImGui::RenderTextClipped(bb.Min + padding + offset, bb.Max - padding, entry.String, NULL, &layout_size, style.ButtonTextAlign, &bb);
+
 				ImGui::PopFont();
+				ImGui::PopStyleColor(1);
 			}
 
 			offset.x += entry.CalcSize().x;
 		}
 		
-		ImGui::PopStyleColor(1);
-		ImGui::PopStyleVar(1);
 
 		return pressed;
 	}

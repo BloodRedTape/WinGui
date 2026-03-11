@@ -17,6 +17,12 @@ struct WinGuiButtonStyle {
    float OutlineSize = 1.f;
    //ImU32 ShadowColor = WIN_DEBUG_NULL_COLOR;
    ImU32 ContentColor = WIN_DEBUG_NULL_COLOR;
+   float Rounding = 3.f;
+};
+
+struct WinGuiButtonLayout {
+    float IconTextSpacing = 10.f;
+    ImVec2 ContentPadding = {12.f, 10.f};
 };
 
 enum WinGuiButton_ {
@@ -69,9 +75,14 @@ struct WinGuiStyle {
     ImU32 Accent = WIN_DEBUG_NULL_COLOR;
 };
 
+struct WinGuiLayout {
+    WinGuiButtonLayout ButtonLayout;
+};
+
 struct WinGuiContext {
     WinGuiFontAtlas Typography;
     WinGuiStyle Style;
+    WinGuiLayout Layout;
 };
 
 enum WinGuiPopup_ {
