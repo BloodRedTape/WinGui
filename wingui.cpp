@@ -189,6 +189,7 @@ namespace WinGui {
 
 		style->LayerStyles[WinGuiLayer_Content].Color        = IM_COL32(45, 45, 45, 255);
 		style->LayerStyles[WinGuiLayer_Content].OutlineColor = IM_COL32(64, 64, 64, 255);
+		style->LayerStyles[WinGuiLayer_Content].OutlineSize = 0.f;
 		style->LayerStyles[WinGuiLayer_Content].ShadowColor  = IM_COL32(0, 0, 0, 130);
 
 		SetButtonColors(
@@ -250,6 +251,7 @@ namespace WinGui {
 
 		style->LayerStyles[WinGuiLayer_Content].Color        = IM_COL32(255, 255, 255, 255);
 		style->LayerStyles[WinGuiLayer_Content].OutlineColor = IM_COL32(229, 229, 229, 255);
+		style->LayerStyles[WinGuiLayer_Content].OutlineSize = 0.f;
 		style->LayerStyles[WinGuiLayer_Content].ShadowColor  = IM_COL32(0, 0, 0, 15);
 
 		SetButtonColors(
@@ -620,19 +622,18 @@ namespace WinGui {
 			ImGui::SetNextWindowPos(rect_min); // TODO(I.Kostiuk): align with ImGui::GetStyle().FramePadding
 
 		if(type == WinGuiPopup_Below)
-			ImGui::SetNextWindowPos({rect_min.x, rect_max.y});
+			ImGui::SetNextWindowPos({rect_min.x, rect_max.y + 2}); //TODO(bloodredtape): move this to layout
 
 		ImGui::PushStyleColor(ImGuiCol_PopupBg, ctx->Style.LayerStyles[WinGuiLayer_Content].Color);
-		//ImGui::PushStyleColor(ImGuiCol_Border, ctx->Style.LayerStyles[WinGuiLayer_Content].OutlineColor);
-		//ImGui::PushStyleColor(ImGuiCol_BorderShadow, ctx->Style.LayerStyles[WinGuiLayer_Content].ShadowColor);
+		ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, ctx->Style.LayerStyles[WinGuiLayer_Content].OutlineSize);
 
 		return ImGui::BeginPopup(name);
 	}
 
 	void EndPopup() {
 		ImGui::EndPopup();
-
-		ImGui::PopStyleColor(/*3*/);
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor(1);
 	}
 
 	void SpacingX(int spacing)

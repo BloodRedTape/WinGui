@@ -45,6 +45,7 @@ enum WinGuiWidgetState {
 struct WinGuiLayerStyle {
    ImU32 Color = WIN_DEBUG_NULL_COLOR;
    ImU32 OutlineColor = WIN_DEBUG_NULL_COLOR;
+   float OutlineSize = 1.f;
    ImU32 ShadowColor = WIN_DEBUG_NULL_COLOR;
 };
 
